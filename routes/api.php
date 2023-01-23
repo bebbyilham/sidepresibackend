@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\BlogController;
 use App\Http\Controllers\API\CreatorController;
-
+use App\Http\Controllers\API\NurseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +28,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('transaction/{id}', [TransactionController::class, 'update']);
     Route::post('checkout', [TransactionController::class, 'checkout']);
     Route::post('logout', [UserController::class, 'logout']);
+    //nurse
+    Route::post('nurses', [NurseController::class, 'create']);
 });
 
 Route::post('login', [UserController::class, 'login']);
@@ -46,3 +48,10 @@ Route::put('blogs/{id}', [BlogController::class, 'update']);
 Route::get('blogs/{id}', [BlogController::class, 'show']);
 Route::get('blogs', [BlogController::class, 'index']);
 Route::delete('blogs/{id}', [BlogController::class, 'destroy']);
+
+//nurse
+Route::get('nurses', [NurseController::class, 'index']);
+Route::get('nurses/{id}', [NurseController::class, 'show']);
+// Route::post('nurses', [NurseController::class, 'create']);
+Route::put('nurses/{id}', [NurseController::class, 'update']);
+Route::delete('nurses/{id}', [NurseController::class, 'destroy']);
