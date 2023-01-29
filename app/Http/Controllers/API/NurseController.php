@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Helpers\ResponseFormatter;
 use App\Models\Nurse;
+use App\Models\IdentitasProfesi;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,8 +23,11 @@ class NurseController extends Controller
 
     public function show($id)
     {
-        $nurse = Nurse::with('user')
-            ->find($id);
+        // $nurse = Nurse::with('user')
+        //     ->find($id);
+        $nurse = Nurse::where([
+            ["user_id", $id]
+        ])->first();
         if (!$nurse) {
             return response()->json([
                 'status' => 'error',
@@ -37,7 +41,7 @@ class NurseController extends Controller
         ]);
     }
 
-    public function create(Request $request, User $user)
+    public function create(Request $request)
     {
         $rules = [
             'nama' => 'required|string',
@@ -45,7 +49,9 @@ class NurseController extends Controller
             'no_ktp' => 'required|string',
             'tempat_lahir' => 'required|string',
             'tanggal_lahir' => 'required|string',
-            'jenis_kelamin' => 'required|in:laki-laki,perempuan'
+            'jenis_kelamin' => 'required|in:laki-laki,perempuan',
+            'alamat_lengkap' => 'required|string',
+            'no_hp' => 'required|numeric',
         ];
 
         $data = $request->all();
@@ -58,15 +64,94 @@ class NurseController extends Controller
                 'message' => $validator->errors()
             ], 400);
         }
-        // $user = Auth::user();
-        // if (!$user) {
-        //     return ResponseFormatter::error([
-        //         'message' => 'Something went wrong',
-        //     ], 'Authentication Failed', 500);
-        // }
-        $nurse = Nurse::create($data);
+        $user_id = $request->input('user_id');
+        $cekdata =
+            Nurse::where([
+                ["user_id", $user_id]
+            ])->first();
+        if (!$cekdata) {
+            $nurse = Nurse::create($data);
+            $message = 'created';
+        } else {
+            $nurse = Nurse::where([
+                ["user_id", $user_id]
+            ])->first();
+            $nurse->fill($data);
+            $nurse->save();
+            $message = 'updated';
+        }
 
-        return response()->json(['status' => 'success', 'data' => $nurse]);
+        return response()->json(['status' => 'success', 'message' => $message, 'data' => $nurse]);
+    }
+
+    public function createidentitasprofesi(Request $request)
+    {
+        $rules = [
+            'user_id' => 'required|string',
+            'ijazah_terakhir' => 'required|string',
+            'no_ijazah_terakhir' => 'required|string',
+            'tahun_ijazah_terakhir' => 'required|string',
+            'nama_institusi' => 'required|string',
+            'jenis_profesi' => 'required|string',
+            'jenjang_profesi' => 'required|string',
+            'no_kta' => 'required|string',
+            'tgl_daftar_anggota' => 'required|string',
+            'no_str' => 'required|string',
+            'str_berlaku' => 'required|string',
+            'no_sikp' => 'required|string',
+            'sikp_berlaku' => 'required|string',
+            'no_penugasan' => 'required|string',
+            'no_penugasan_berlaku' => 'required|string',
+        ];
+
+        $data = $request->all();
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()
+            ], 400);
+        }
+        $user_id = $request->input('user_id');
+        $cekdata =
+            IdentitasProfesi::where([
+                ["user_id", $user_id]
+            ])->first();
+        if (!$cekdata) {
+            $nurse = IdentitasProfesi::create($data);
+            $message = 'created';
+        } else {
+            $nurse = IdentitasProfesi::where([
+                ["user_id", $user_id]
+            ])->first();
+            $nurse->fill($data);
+            $nurse->save();
+            $message = 'updated';
+        }
+
+        return response()->json(['status' => 'success', 'message' => $message, 'data' => $nurse]);
+    }
+
+    public function showidentitasprofesi($id)
+    {
+        // $nurse = Nurse::with('user')
+        //     ->find($id);
+        $nurse = IdentitasProfesi::where([
+            ["user_id", $id]
+        ])->first();
+        if (!$nurse) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'identitas profesi not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $nurse
+        ]);
     }
 
     public function update(Request $request, $id)

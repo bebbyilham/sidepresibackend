@@ -30,6 +30,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('logout', [UserController::class, 'logout']);
     //nurse
     Route::post('nurses', [NurseController::class, 'create']);
+    Route::post('nurses/createidentitasprofesi', [NurseController::class, 'createidentitasprofesi']);
 });
 
 Route::post('login', [UserController::class, 'login']);
@@ -55,3 +56,4 @@ Route::get('nurses/{id}', [NurseController::class, 'show']);
 // Route::post('nurses', [NurseController::class, 'create']);
 Route::put('nurses/{id}', [NurseController::class, 'update']);
 Route::delete('nurses/{id}', [NurseController::class, 'destroy']);
+Route::get('nurses/showidentitasprofesi/{id}', [NurseController::class, 'showidentitasprofesi']);
