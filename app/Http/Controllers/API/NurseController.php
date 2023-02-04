@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Helpers\ResponseFormatter;
+use App\Models\DataPekerjaan;
 use App\Models\Nurse;
 use App\Models\IdentitasProfesi;
 use App\Models\User;
@@ -139,6 +140,70 @@ class NurseController extends Controller
         // $nurse = Nurse::with('user')
         //     ->find($id);
         $nurse = IdentitasProfesi::where([
+            ["user_id", $id]
+        ])->first();
+        if (!$nurse) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'identitas profesi not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $nurse
+        ]);
+    }
+
+    public function createdatapekerjaan(Request $request)
+    {
+        $rules = [
+            'user_id' => 'required|string',
+            'status_kepegawaian' => 'required|string',
+            'nip' => 'required|string',
+            'no_sk_pengangkatan' => 'required|string',
+            'ruang_kerja' => 'required|string',
+            'ruang_kerja_lain' => 'required|string',
+            'jabatan' => 'required|string',
+            'total_masa_kerja' => 'required|string',
+            'tmt' => 'required|string',
+            'riwayat_penempatan' => 'required|string',
+            'kesesuaian' => 'required|string',
+        ];
+
+        $data = $request->all();
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()
+            ], 400);
+        }
+        $user_id = $request->input('user_id');
+        $cekdata =
+            DataPekerjaan::where([
+                ["user_id", $user_id]
+            ])->first();
+        if (!$cekdata) {
+            $nurse = DataPekerjaan::create($data);
+            $message = 'created';
+        } else {
+            $nurse = DataPekerjaan::where([
+                ["user_id", $user_id]
+            ])->first();
+            $nurse->fill($data);
+            $nurse->save();
+            $message = 'updated';
+        }
+
+        return response()->json(['status' => 'success', 'message' => $message, 'data' => $nurse]);
+    }
+
+    public function showdatapekerjaan($id)
+    {
+        $nurse = DataPekerjaan::where([
             ["user_id", $id]
         ])->first();
         if (!$nurse) {

@@ -57,3 +57,6 @@ Route::get('nurses/{id}', [NurseController::class, 'show']);
 Route::put('nurses/{id}', [NurseController::class, 'update']);
 Route::delete('nurses/{id}', [NurseController::class, 'destroy']);
 Route::get('nurses/showidentitasprofesi/{id}', [NurseController::class, 'showidentitasprofesi']);
+Route::get('nurses/showdatapekerjaan/{id}', [NurseController::class, 'showdatapekerjaan']);
+
+Route::post('nurses/createdatapekerjaan', [NurseController::class, 'createdatapekerjaan']);
