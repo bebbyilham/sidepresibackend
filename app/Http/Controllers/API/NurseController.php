@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Helpers\ResponseFormatter;
 use App\Models\DataPekerjaan;
+use App\Models\DataPelatihan;
 use App\Models\Nurse;
 use App\Models\IdentitasProfesi;
 use App\Models\User;
@@ -216,6 +217,92 @@ class NurseController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $nurse
+        ]);
+    }
+
+    public function createdatapelatuhan(Request $request)
+    {
+        $rules = [
+            'user_id' => 'required|string',
+            'jenis_pelatihan' => 'required|string',
+            'nama_pelatihan' => 'required|string',
+            'tahun_pelaksanaan' => 'required|string',
+            'jumlah_ipl' => 'required|string',
+            'jumlah_skp' => 'required|string',
+            'berlaku' => 'required|string',
+            'status_pelatihan' => 'required|string'
+        ];
+
+        $data = $request->all();
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()
+            ], 400);
+        }
+        $user_id = $request->input('user_id');
+        $cekdata =
+            DataPelatihan::where([
+                ["user_id", $user_id]
+            ])->first();
+        // if (!$cekdata) {
+        $nurse = DataPelatihan::create($data);
+        $message = 'created';
+        // } else {
+        //     $nurse = DataPelatihan::where([
+        //         ["user_id", $user_id]
+        //     ])->first();
+        //     $nurse->fill($data);
+        //     $nurse->save();
+        //     $message = 'updated';
+        // }
+
+        return response()->json(['status' => 'success', 'message' => $message, 'data' => $nurse]);
+    }
+
+    public function updatedatapelatihan(Request $request, $id)
+    {
+        $rules = [
+            'user_id' => 'required|string',
+            'jenis_pelatihan' => 'required|string',
+            'nama_pelatihan' => 'required|string',
+            'tahun_pelaksanaan' => 'required|string',
+            'jumlah_ipl' => 'required|string',
+            'jumlah_skp' => 'required|string',
+            'berlaku' => 'required|string',
+            'status_pelatihan' => 'required|string'
+        ];
+
+        $data = $request->all();
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()
+            ], 400);
+        }
+
+        $datapelatihan = DataPelatihan::find($id);
+
+        if (!$datapelatihan) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'datapelatihan not found'
+            ], 404);
+        }
+
+        // jika ditemukan data datapelatihan akan diupdate
+        $datapelatihan->fill($data);
+
+        $datapelatihan->save();
+        return response()->json([
+            'status' => 'success',
+            'data' => $datapelatihan
         ]);
     }
 
